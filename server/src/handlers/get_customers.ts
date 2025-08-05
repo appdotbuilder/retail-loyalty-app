@@ -1,9 +1,21 @@
 
+import { db } from '../db';
+import { customersTable } from '../db/schema';
 import { type Customer } from '../schema';
 
-export async function getCustomers(): Promise<Customer[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all customers from the database.
-    // Should return all customers with their current points and cashback balances.
-    return [];
-}
+export const getCustomers = async (): Promise<Customer[]> => {
+  try {
+    const results = await db.select()
+      .from(customersTable)
+      .execute();
+
+    // Convert numeric fields back to numbers
+    return results.map(customer => ({
+      ...customer,
+      cashback_balance: parseFloat(customer.cashback_balance)
+    }));
+  } catch (error) {
+    console.error('Failed to fetch customers:', error);
+    throw error;
+  }
+};
